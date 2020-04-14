@@ -1,8 +1,6 @@
 package com.teatez.tm
 
 import com.daveanthonythomas.moshipack.MoshiPack
-import kotlinx.atomicfu.AtomicInt
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
@@ -74,9 +72,9 @@ class TaskMaker (
     private fun server(sc: SendChannel<Message<*>>) = Server(sc, serverPort)
     private class Server(val sc: SendChannel<Message<*>>, port: Int) : CoroutineScope by CoroutineScope(Dispatchers.Default) {
         private val ss = ServerSocket(port)
-        val serving = atomic(true)
+        val serving = AtomicBoolean(true)
         private suspend fun serve() = withContext(Dispatchers.IO) {
-            while(serving.value) {
+            while(serving.get()) {
                 val s = ss.accept()
                 SocketConnection(s, sc) //where should i put these????
             }
